@@ -132,12 +132,16 @@ const NewComic = () => {
       setTimeout(() => {
         router.push(response.link);
       }, 2000);
-    } catch (error: any) {
+    } catch (error) {
+      // Use a more specific error type
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred.";
       console.log(error);
 
       toast.dismiss(loadingToastId); // Dismiss the loading toast
-
-      return toast.error(error.response.data.message);
+      return toast.error(errorMessage);
     }
   };
 

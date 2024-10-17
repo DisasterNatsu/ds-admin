@@ -93,13 +93,16 @@ const ChapterUpload = ({
       toast.success(res.message);
 
       // console.log("Form data prepared for submission:", formData);
-    } catch (error: any) {
+    } catch (error) {
+      // Use a more specific error type
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred.";
       console.log(error);
 
       toast.dismiss(loadingToastId); // Dismiss the loading toast
-
-      toast.error(error.response.data.message);
-      return;
+      return toast.error(errorMessage);
     }
   };
 

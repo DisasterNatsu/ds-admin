@@ -1,4 +1,3 @@
-import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import ReduxProvider from "@/providers/ReduxProvider";

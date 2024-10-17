@@ -5,8 +5,11 @@ import { ModeToggle } from "@/components/shared/ModeToggle";
 import SideNav from "@/components/shared/SideNav";
 import { RootState } from "@/redux/store/store";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import Cookies from "js-cookie";
+import { Axios } from "@/lib/AxiosConfig";
+import { setUser } from "@/redux/slices/AuthSlice";
 
 export default function RootLayout({
   children,
@@ -20,10 +23,40 @@ export default function RootLayout({
   const dispatch = useDispatch();
   const open = useSelector((state: RootState) => state.navState.open);
 
+  useEffect(() => {
+    const CheckAuth = async () => {
+      setLoading(true);
+
+      try {
+        const token = Cookies.get("ds-admin-token");
+
+        if (!token) {
+          setLoading(false);
+          Router.push("/");
+          return; // Exit early
+        }
+
+        const isAuth = await Axios.get("/admin/token", {
+          headers: { "disaster-admin-token": token },
+        });
+
+        const data = await isAuth.data;
+
+        dispatch(setUser({ email: data.email }));
+      } catch (error) {
+        console.log(error);
+        setLoading(false);
+        Router.push("/");
+      }
+      setLoading(false); // Ensure loading is false after the check
+    };
+
+    CheckAuth();
+  }, [dispatch, pathName, Router]);
+
   if (loading) {
     return <Loading />;
   }
-
   return (
     <div>
       <div className="h-screen fixed">

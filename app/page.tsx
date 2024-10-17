@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Axios } from "@/lib/AxiosConfig";
+import { useDispatch } from "react-redux";
+import { setUser } from "@/redux/slices/AuthSlice";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid Email!" }),
@@ -29,6 +31,7 @@ const formSchema = z.object({
 const Home = () => {
   const { resolvedTheme } = useTheme();
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,6 +53,8 @@ const Home = () => {
 
       const res = (await req.data) as SignInResponse;
 
+      dispatch(setUser({ email: res.email }));
+
       toast.dismiss(loadingToastId); // Dismiss the loading toast
 
       toast.success("Success! Welcome back!", {
@@ -61,15 +66,17 @@ const Home = () => {
       }, 2000);
 
       return;
-    } catch (error: any) {
+    } catch (error) {
+      // Use a more specific error type
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred.";
       console.log(error);
 
       toast.dismiss(loadingToastId); // Dismiss the loading toast
-
-      return toast.error(error.response.data.message);
+      return toast.error(errorMessage);
     }
-
-    console.log(data);
   };
 
   return (
